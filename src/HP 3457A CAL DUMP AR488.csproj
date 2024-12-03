@@ -1,17 +1,20 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <TargetFramework>net9.0-windows</TargetFramework>
-    <OutputType>WinExe</OutputType>
-    <UseWPF>true</UseWPF>
-  </PropertyGroup>
-  <PropertyGroup>
-    <ApplicationIcon>Logo.ico</ApplicationIcon>
-  </PropertyGroup>
-  <ItemGroup>
-    <PackageReference Include="System.IO.Ports" />
-    <PackageReference Include="System.Management" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Logo.ico" />
-  </ItemGroup>
+	<PropertyGroup>
+		<TargetFramework>net9.0-windows</TargetFramework>
+		<OutputType>WinExe</OutputType>
+		<UseWPF>true</UseWPF>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<LangVersion>preview</LangVersion>		
+	</PropertyGroup>
+	<PropertyGroup>
+		<ApplicationIcon>Logo.ico</ApplicationIcon>
+	</PropertyGroup>
+	<ItemGroup>
+		<PackageReference Include="System.IO.Ports" />
+		<PackageReference Include="System.Management" />
+	</ItemGroup>
+	<ItemGroup>
+		<Resource Include="Logo.ico" />
+	</ItemGroup>
 </Project>

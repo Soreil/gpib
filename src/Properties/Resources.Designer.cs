@@ -9,7 +9,7 @@
 //------------------------------------------------------------------------------
 
 
-namespace HP_3457A_CAL_DUMP_AR488.Properties
+namespace ar488.Properties
 {
     /// <summary>
     ///   A strongly-typed resource class, for looking up localized strings, etc.

@@ -15,7 +15,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Threading;
 
-namespace HP_3457A_CAL_DUMP_AR488;
+namespace ar488;
 
 /// <summary>
 /// Interaction logic for MainWindow.xaml
@@ -23,7 +23,7 @@ namespace HP_3457A_CAL_DUMP_AR488;
 public partial class MainWindow : Window
 {
     //List of COM Ports stored in this
-    List<string> portList;
+    List<string> portList = [];
 
     //COM Port Information, updated by GUI
     private string COM_Port_Name = "";
@@ -38,7 +38,7 @@ public partial class MainWindow : Window
     private int COM_GPIB_Address_Value = 1;
 
     //Save Data Directory
-    string folder_Directory;
+    string folder_Directory = "";
 
     public BlockingCollection<string> Calibration_Data = [];
 

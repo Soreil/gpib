@@ -1,9 +1,9 @@
-﻿<Window x:Class="HP_3457A_CAL_DUMP_AR488.MainWindow"
+﻿<Window x:Class="ar488.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:HP_3457A_CAL_DUMP_AR488"
+        xmlns:local="clr-namespace:ar488"
         mc:Ignorable="d"
         Title="Utility for AR488 Arduino GPIB Adapter" Height="600" Width="600">
     <Grid>
