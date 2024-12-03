@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:HP_3457A_CAL_DUMP_AR488"
         mc:Ignorable="d"
-        Title="HP 3457A Calibration Dump Utility for AR488 Arduino GPIB Adapter" Height="600" Width="600">
+        Title="Utility for AR488 Arduino GPIB Adapter" Height="600" Width="600">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
