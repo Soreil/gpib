@@ -9,7 +9,7 @@
 //------------------------------------------------------------------------------
 
 
-namespace HP_3457A_CAL_DUMP_AR488.Properties
+namespace ar488.Properties
 {
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "11.0.0.0")]
