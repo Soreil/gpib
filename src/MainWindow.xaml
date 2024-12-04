@@ -6,6 +6,9 @@
         xmlns:local="clr-namespace:ar488"
         mc:Ignorable="d"
         Title="Utility for AR488 Arduino GPIB Adapter" Height="600" Width="600">
+    <Window.DataContext>
+        <local:MainWindowViewModel/>
+    </Window.DataContext>
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
@@ -28,7 +31,7 @@
         <GroupBox x:Name="HP3457A_COM_Config" Margin="2,2,2,2" Grid.Column="1" Grid.Row="0" IsEnabled="True">
             <GroupBox.Header>
                 <StackPanel Orientation="Horizontal">
-                    <TextBlock FontWeight="Bold" Margin="5,0,0,0">HP 3457A COM Info</TextBlock>
+                    <TextBlock FontWeight="Bold" Margin="5,0,0,0">COM Info</TextBlock>
                 </StackPanel>
             </GroupBox.Header>
             <Grid>
@@ -52,44 +55,15 @@
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
                 <Label Content="COM Port Number:" Margin="0,0,0,0" Grid.Column="0" Grid.Row="1" HorizontalContentAlignment="Right"/>
-                <TextBox x:Name="COM_Port" Margin="0,0,0,2" TextWrapping="Wrap" VerticalContentAlignment="Center" FontSize="14" Text="COM22" Grid.Column="1" Grid.Row="1"/>
+                <TextBox x:Name="COM_Port" Margin="0,0,0,2" TextWrapping="Wrap" VerticalContentAlignment="Center" FontSize="14" Text="{Binding COM_Port_Name}" Grid.Column="1" Grid.Row="1"/>
                 <Label Content="Bits per second:" Margin="0,0,0,0" Grid.Column="0" Grid.Row="2" HorizontalContentAlignment="Right"/>
-                <ComboBox x:Name="COM_Bits" Margin="0,0,0,2" FontSize="14" VerticalContentAlignment="Center" Grid.Column="1" Grid.Row="2">
-                    <ComboBoxItem Content="300" IsSelected="False" IsEnabled="True"/>
-                    <ComboBoxItem Content="600" IsSelected="False" IsEnabled="True"/>
-                    <ComboBoxItem Content="1200" IsSelected="False" IsEnabled="True"/>
-                    <ComboBoxItem Content="2400" IsSelected="False" IsEnabled="True"/>
-                    <ComboBoxItem Content="4800" IsSelected="False" IsEnabled="True"/>
-                    <ComboBoxItem Content="9600" IsSelected="False" IsEnabled="True"/>
-                    <ComboBoxItem Content="14400" IsSelected="False" IsEnabled="True"/>
-                    <ComboBoxItem Content="19200" IsSelected="False" IsEnabled="True"/>
-                    <ComboBoxItem Content="38400" IsSelected="False" IsEnabled="True"/>
-                    <ComboBoxItem Content="57600" IsSelected="False" IsEnabled="True"/>
-                    <ComboBoxItem Content="115200" IsSelected="True" IsEnabled="True"/>
-                    <ComboBoxItem Content="128000" IsSelected="False" IsEnabled="True"/>
-                </ComboBox>
+                <ComboBox x:Name="COM_Bits" Margin="0,0,0,2" FontSize="14" VerticalContentAlignment="Center" Grid.Column="1" Grid.Row="2" ItemsSource="{Binding Path=BaudRates}" SelectedValue="{Binding Path=COM_BaudRate_Value}"/>
                 <Label Content="Data bits:" Margin="0,0,0,0" Grid.Column="0" Grid.Row="3" HorizontalContentAlignment="Right"/>
-                <ComboBox x:Name="COM_DataBits" Margin="0,0,0,2" FontSize="14" VerticalContentAlignment="Center" Grid.Column="1" Grid.Row="3">
-                    <ComboBoxItem Content="4" IsSelected="False" IsEnabled="True"/>
-                    <ComboBoxItem Content="5" IsSelected="False" IsEnabled="True"/>
-                    <ComboBoxItem Content="6" IsSelected="False" IsEnabled="True"/>
-                    <ComboBoxItem Content="7" IsSelected="False" IsEnabled="True"/>
-                    <ComboBoxItem Content="8" IsSelected="True" IsEnabled="True"/>
-                </ComboBox>
+                <ComboBox x:Name="COM_DataBits" Margin="0,0,0,2" FontSize="14" VerticalContentAlignment="Center" Grid.Column="1" Grid.Row="3" ItemsSource="{Binding Path=DataBitsOptions}" SelectedValue="{Binding Path=COM_DataBits_Value}"/>
                 <Label Content="Parity:" Margin="0,0,0,0" Grid.Column="0" Grid.Row="4" HorizontalContentAlignment="Right"/>
-                <ComboBox x:Name="COM_Parity" Margin="0,0,0,2" FontSize="14" VerticalContentAlignment="Center" Grid.Column="1" Grid.Row="4">
-                    <ComboBoxItem Content="Even" IsSelected="False" IsEnabled="True"/>
-                    <ComboBoxItem Content="Odd" IsSelected="False" IsEnabled="True"/>
-                    <ComboBoxItem Content="None" IsSelected="True" IsEnabled="True"/>
-                    <ComboBoxItem Content="Mark" IsSelected="False" IsEnabled="True"/>
-                    <ComboBoxItem Content="Space" IsSelected="False" IsEnabled="True"/>
-                </ComboBox>
+                <ComboBox x:Name="COM_Parity" Margin="0,0,0,2" FontSize="14" VerticalContentAlignment="Center" Grid.Column="1" Grid.Row="4" ItemsSource="{Binding ParityOptions}" SelectedValue="{Binding COM_Parity_Value}"/>
                 <Label Content="Stop bits:" Margin="0,0,0,0" Grid.Column="0" Grid.Row="5" HorizontalContentAlignment="Right"/>
-                <ComboBox x:Name="COM_Stop" Margin="0,0,0,2" FontSize="14" VerticalContentAlignment="Center" Grid.Column="1" Grid.Row="5">
-                    <ComboBoxItem Content="1" IsSelected="True" IsEnabled="True"/>
-                    <ComboBoxItem Content="1.5" IsSelected="False" IsEnabled="True"/>
-                    <ComboBoxItem Content="2" IsSelected="False" IsEnabled="True"/>
-                </ComboBox>
+                <ComboBox x:Name="COM_Stop" Margin="0,0,0,2" FontSize="14" VerticalContentAlignment="Center" Grid.Column="1" Grid.Row="5" ItemsSource="{Binding StopBitsOptions}" SelectedValue="{Binding COM_StopBits_Value}"/>
                 <Label Content="Flow control:"  Margin="0,0,0,0" Grid.Column="0" Grid.Row="6" HorizontalContentAlignment="Right"/>
                 <ComboBox x:Name="COM_Flow" Margin="0,0,0,2" FontSize="14" VerticalContentAlignment="Center" Grid.Column="1" Grid.Row="6">
                     <ComboBoxItem Content="Xon/Xoff" IsSelected="False" IsEnabled="True"/>
@@ -106,7 +80,7 @@
                     <ComboBoxItem Content="False" IsSelected="False" IsEnabled="True"/>
                 </ComboBox>
                 <Label Content="GPIB Address: "  Margin="0,0,0,0" Grid.Column="0" Grid.Row="10" HorizontalContentAlignment="Right"/>
-                <TextBox x:Name="GPIB_Address" Margin="0,0,0,2" TextWrapping="Wrap" FontSize="14" Text="22" Grid.Column="1" Grid.Row="10"/>
+                <TextBox x:Name="GPIB_Address" Text="{Binding COM_GPIB_Address_Value}" Margin="0,0,0,2" TextWrapping="Wrap" FontSize="14" Grid.Column="1" Grid.Row="10"/>
             </Grid>
         </GroupBox>
         <GroupBox x:Name="HP3457A_Cal_Config" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Margin="2,0,2,5" IsEnabled="True">
@@ -143,7 +117,7 @@
                         <TextBox x:Name="Stop_Address_Input_Field" FontSize="13" Padding="0" Margin="0,3,0,3" HorizontalContentAlignment="Center" Width="100" Text=""/>
                     </StackPanel>
                     <StackPanel Grid.Row="0" Grid.RowSpan="2" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center">
-                        <Button FontSize="18" Padding="8" BorderBrush="{x:Null}" Background="#FF34E25C"  Content="Start" Click="Get_Calibration_Data"/>
+                        <Button FontSize="18" Padding="8" BorderBrush="{x:Null}" Background="#FF34E25C"  Content="Start" />
                     </StackPanel>
                 </Grid>
                 <Grid Grid.Row="0" Grid.RowSpan="2" Grid.Column="2">
@@ -177,7 +151,7 @@
         <GroupBox Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Margin="2,0,2,2">
             <GroupBox.Header>
                 <StackPanel Orientation="Horizontal">
-                    <Button x:Name="Info_Clear" Content="Clear" Margin="0,-2,0,0" Width="35" Click="Info_Clear_Click"/>
+                    <Button x:Name="Info_Clear" Content="Clear" Margin="0,-2,0,0" Width="35" Command="{Binding Path=ClearInfoLogCommand}"/>
                     <TextBlock FontWeight="Bold" Margin="5,0,0,0">Info Log</TextBlock>
                 </StackPanel>
             </GroupBox.Header>

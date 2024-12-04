@@ -22,45 +22,22 @@ namespace ar488;
 /// </summary>
 public partial class MainWindow : Window
 {
-    //List of COM Ports stored in this
-    List<string> portList = [];
+    public MainWindowViewModel ViewModel { get; } = new();
 
-    //COM Port Information, updated by GUI
-    private string COM_Port_Name = "";
-    private int COM_BaudRate_Value = 115200;
-    private int COM_Parity_Value = 0;
-    private int COM_StopBits_Value = 1;
-    private int COM_DataBits_Value = 8;
-    private int COM_Handshake_Value = 0;
-    private int COM_WriteTimeout_Value = 3000;
-    private int COM_ReadTimeout_Value = 3000;
-    private bool COM_RtsEnable = false;
-    private int COM_GPIB_Address_Value = 1;
-
-    //Save Data Directory
-    string folder_Directory = "";
-
-    public BlockingCollection<string> Calibration_Data = [];
-
-    public ObservableCollection<TextBlock> Output_Log
-    {
-        get { return (ObservableCollection<TextBlock>)GetValue(Output_Log_Property); }
-        set { SetValue(Output_Log_Property, value); }
-    }
-
-    public static readonly DependencyProperty Output_Log_Property = DependencyProperty.Register(nameof(Output_Log), typeof(ObservableCollection<TextBlock>), typeof(TextBlock), new PropertyMetadata(default(ObservableCollection<TextBlock>)));
 
     public MainWindow()
     {
         InitializeComponent();
-        DataContext = this;
-        Output_Log = [];
+        DataContext = ViewModel;
         Get_COM_List();
-        GetSoftwarePath();
+        var path = GetSoftwarePath(ViewModel.folder_Directory);
+        if (path != null)
+        {
+            ViewModel.folder_Directory = path;
+        }
         Insert_Log("Make sure GPIB Address is correct.", 4);
         Insert_Log("Choose the correct COM port from the list.", 4);
-        var isFolderCreated = FolderCreation(folder_Directory);
-        if (!isFolderCreated)
+        if (!TryCreateFolder(ViewModel.folder_Directory))
         {
             Insert_Log("Failed to create Calibration Data Folder, Try Again.", 1);
         }
@@ -69,21 +46,23 @@ public partial class MainWindow : Window
         Insert_Log("New Revision, Start Address: 20480  Stop Address: 22527", 6);
     }
 
-    private void GetSoftwarePath()
+    private string? GetSoftwarePath(string folder)
     {
         try
         {
-            folder_Directory = System.IO.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + @"\" + "Calibration Data (HP3457A)";
+            var res = System.IO.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + @"\" + "Calibration Data (HP3457A)";
             Insert_Log("Calibration Data will be saved inside the software directory.", 3);
-            Insert_Log(folder_Directory, 3);
+            Insert_Log(folder, 3);
+            return res;
         }
         catch (Exception)
         {
             Insert_Log("Cannot get software directory path. Move Software to different location and Try Again.", 1);
         }
+        return null;
     }
 
-    private static bool FolderCreation(string folderPath)
+    private static bool TryCreateFolder(string folderPath)
     {
         try
         {
@@ -101,8 +80,8 @@ public partial class MainWindow : Window
         using var searcher = new ManagementObjectSearcher("SELECT * FROM Win32_PnPEntity WHERE Caption like '%(COM%'");
         var portnames = SerialPort.GetPortNames();
         var ports = searcher.Get().Cast<ManagementBaseObject>().ToList().Select(p => p["Caption"].ToString());
-        portList = portnames.Select(n => n + " - " + ports.FirstOrDefault(s => s.Contains('(' + n + ')'))).ToList();
-        foreach (string p in portList)
+        ViewModel.PortList = portnames.Select(n => n + " - " + ports.FirstOrDefault(s => s.Contains('(' + n + ')'))).ToList();
+        foreach (string p in ViewModel.PortList)
         {
             UpdateList(p);
         }
@@ -164,91 +143,91 @@ public partial class MainWindow : Window
         return true;
     }
 
-    private bool COM_Config_Updater()
-    {
-        COM_Port_Name = COM_Port.Text.ToUpper().Trim();
+    //private bool COM_Config_Updater()
+    //{
+    //    COM_Port_Name = COM_Port.Text.ToUpper().Trim();
 
-        string BaudRate = COM_Bits.SelectedItem.ToString().Split([": "], StringSplitOptions.None).Last();
-        COM_BaudRate_Value = Int32.Parse(BaudRate);
+    //    string BaudRate = COM_Bits.SelectedItem.ToString().Split([": "], StringSplitOptions.None).Last();
+    //    COM_BaudRate_Value = Int32.Parse(BaudRate);
 
-        string DataBits = COM_DataBits.SelectedItem.ToString().Split([": "], StringSplitOptions.None).Last();
-        COM_DataBits_Value = Int32.Parse(DataBits);
+    //    string DataBits = COM_DataBits.SelectedItem.ToString().Split([": "], StringSplitOptions.None).Last();
+    //    COM_DataBits_Value = Int32.Parse(DataBits);
 
-        bool isNum = int.TryParse(COM_write_timeout.Text.Trim(), out int Value);
-        if (isNum & Value > 0)
-        {
-            COM_WriteTimeout_Value = Value;
-            COM_write_timeout.Text = Value.ToString();
-        }
-        else
-        {
-            COM_write_timeout.Text = "1000";
-            Insert_Log("Write Timeout must be a positive integer.", 1);
-            return false;
-        }
+    //    bool isNum = int.TryParse(COM_write_timeout.Text.Trim(), out int Value);
+    //    if (isNum & Value > 0)
+    //    {
+    //        COM_WriteTimeout_Value = Value;
+    //        COM_write_timeout.Text = Value.ToString();
+    //    }
+    //    else
+    //    {
+    //        COM_write_timeout.Text = "1000";
+    //        Insert_Log("Write Timeout must be a positive integer.", 1);
+    //        return false;
+    //    }
 
-        isNum = int.TryParse(COM_read_timeout.Text.Trim(), out Value);
-        if (isNum & Value > 0)
-        {
-            COM_ReadTimeout_Value = Value;
-            COM_read_timeout.Text = Value.ToString();
-        }
-        else
-        {
-            COM_read_timeout.Text = "1000";
-            Insert_Log("Read Timeout must be a positive integer.", 1);
-        }
+    //    isNum = int.TryParse(COM_read_timeout.Text.Trim(), out Value);
+    //    if (isNum & Value > 0)
+    //    {
+    //        COM_ReadTimeout_Value = Value;
+    //        COM_read_timeout.Text = Value.ToString();
+    //    }
+    //    else
+    //    {
+    //        COM_read_timeout.Text = "1000";
+    //        Insert_Log("Read Timeout must be a positive integer.", 1);
+    //    }
 
-        isNum = int.TryParse(GPIB_Address.Text.Trim(), out Value);
-        if (isNum & Value > 0)
-        {
-            COM_GPIB_Address_Value = Value;
-            GPIB_Address.Text = Value.ToString();
-        }
-        else
-        {
-            GPIB_Address.Text = "1";
-            Insert_Log("GPIB Address must be a positive integer.", 1);
-            return false;
-        }
+    //    isNum = int.TryParse(GPIB_Address.Text.Trim(), out Value);
+    //    if (isNum & Value > 0)
+    //    {
+    //        COM_GPIB_Address_Value = Value;
+    //        GPIB_Address.Text = Value.ToString();
+    //    }
+    //    else
+    //    {
+    //        GPIB_Address.Text = "1";
+    //        Insert_Log("GPIB Address must be a positive integer.", 1);
+    //        return false;
+    //    }
 
-        string Parity = COM_Parity.SelectedItem.ToString().Split([": "], StringSplitOptions.None).Last();
-        COM_Parity_Value = Parity switch
-        {
-            "Even" => 2,
-            "Odd" => 1,
-            "None" => 0,
-            "Mark" => 3,
-            "Space" => 4,
-            _ => 0,
-        };
+    //    string Parity = COM_Parity.SelectedItem.ToString().Split([": "], StringSplitOptions.None).Last();
+    //    COM_Parity_Value = Parity switch
+    //    {
+    //        "Even" => 2,
+    //        "Odd" => 1,
+    //        "None" => 0,
+    //        "Mark" => 3,
+    //        "Space" => 4,
+    //        _ => 0,
+    //    };
 
-        string StopBits = COM_Stop.SelectedItem.ToString().Split([": "], StringSplitOptions.None).Last();
-        COM_StopBits_Value = StopBits switch
-        {
-            "1" => 1,
-            "1.5" => 3,
-            "2" => 2,
-            _ => 1,
-        };
+    //    string StopBits = COM_Stop.SelectedItem.ToString().Split([": "], StringSplitOptions.None).Last();
+    //    COM_StopBits_Value = StopBits switch
+    //    {
+    //        "1" => 1,
+    //        "1.5" => 3,
+    //        "2" => 2,
+    //        _ => 1,
+    //    };
 
-        string Flow = COM_Flow.SelectedItem.ToString().Split([": "], StringSplitOptions.None).Last();
-        COM_Handshake_Value = Flow switch
-        {
-            "Xon/Xoff" => 1,
-            "Hardware" => 2,
-            "None" => 0,
-            _ => 1,
-        };
-        string rts = COM_rtsEnable.SelectedItem.ToString().Split([": "], StringSplitOptions.None).Last();
-        COM_RtsEnable = rts switch
-        {
-            "True" => true,
-            "False" => false,
-            _ => true,
-        };
-        return true;
-    }
+    //    string Flow = COM_Flow.SelectedItem.ToString().Split([": "], StringSplitOptions.None).Last();
+    //    COM_Handshake_Value = Flow switch
+    //    {
+    //        "Xon/Xoff" => 1,
+    //        "Hardware" => 2,
+    //        "None" => 0,
+    //        _ => 1,
+    //    };
+    //    string rts = COM_rtsEnable.SelectedItem.ToString().Split([": "], StringSplitOptions.None).Last();
+    //    COM_RtsEnable = rts switch
+    //    {
+    //        "True" => true,
+    //        "False" => false,
+    //        _ => true,
+    //    };
+    //    return true;
+    //}
 
     //Inserts a message into the output log control
     private void Insert_Log(string Message, int Code)
@@ -274,21 +253,9 @@ public partial class MainWindow : Window
                 Foreground = Color,
                 Text = $"[{date}] {Status} {Message.Trim()}"
             };
-            Output_Log.Add(Output_Log_Text);
+            ViewModel.Output_Log.Add(Output_Log_Text);
             Output_Log_Scroll.ScrollToBottom();
         }));
-    }
-
-    private void Info_Clear_Click(object sender, RoutedEventArgs e)
-    {
-        try
-        {
-            Output_Log.Clear();
-        }
-        catch (Exception)
-        {
-
-        }
     }
 
     private (bool, string) Serial_Query_AR488(string command)
@@ -296,13 +263,13 @@ public partial class MainWindow : Window
         try
         {
             Lock_controls();
-            using var serial = new SerialPort(COM_Port_Name, COM_BaudRate_Value, (Parity)COM_Parity_Value, COM_DataBits_Value, (StopBits)COM_StopBits_Value);
-            serial.WriteTimeout = COM_WriteTimeout_Value;
-            serial.ReadTimeout = COM_ReadTimeout_Value;
-            serial.RtsEnable = COM_RtsEnable;
-            serial.Handshake = (Handshake)COM_Handshake_Value;
+            using SerialPort? serial = new SerialPort(ViewModel.COM_Port_Name, ViewModel.COM_BaudRate_Value, (Parity)ViewModel.COM_Parity_Value, ViewModel.COM_DataBits_Value, (StopBits)ViewModel.COM_StopBits_Value);
+            serial.WriteTimeout = ViewModel.COM_WriteTimeout_Value;
+            serial.ReadTimeout = ViewModel.COM_ReadTimeout_Value;
+            serial.RtsEnable = ViewModel.COM_RtsEnable;
+            serial.Handshake = (Handshake)ViewModel.COM_Handshake_Value;
             serial.Open();
-            serial.WriteLine("++addr " + COM_GPIB_Address_Value);
+            serial.WriteLine("++addr " + ViewModel.COM_GPIB_Address_Value);
             Thread.Sleep(100);
             serial.WriteLine(command);
             string data = serial.ReadLine();
@@ -323,13 +290,13 @@ public partial class MainWindow : Window
         try
         {
             Lock_controls();
-            using var serial = new SerialPort(COM_Port_Name, COM_BaudRate_Value, (Parity)COM_Parity_Value, COM_DataBits_Value, (StopBits)COM_StopBits_Value);
-            serial.WriteTimeout = COM_WriteTimeout_Value;
-            serial.ReadTimeout = COM_ReadTimeout_Value;
-            serial.RtsEnable = COM_RtsEnable;
-            serial.Handshake = (Handshake)COM_Handshake_Value;
+            using SerialPort? serial = new SerialPort(ViewModel.COM_Port_Name, ViewModel.COM_BaudRate_Value, (Parity)ViewModel.COM_Parity_Value, ViewModel.COM_DataBits_Value, (StopBits)ViewModel.COM_StopBits_Value);
+            serial.WriteTimeout = ViewModel.COM_WriteTimeout_Value;
+            serial.ReadTimeout = ViewModel.COM_ReadTimeout_Value;
+            serial.RtsEnable = ViewModel.COM_RtsEnable;
+            serial.Handshake = (Handshake)ViewModel.COM_Handshake_Value;
             serial.Open();
-            serial.WriteLine("++addr " + COM_GPIB_Address_Value);
+            serial.WriteLine("++addr " + ViewModel.COM_GPIB_Address_Value);
             Thread.Sleep(100);
             serial.WriteLine(command);
             serial.Close();
@@ -349,13 +316,13 @@ public partial class MainWindow : Window
         try
         {
             Lock_controls();
-            using var serial = new SerialPort(COM_Port_Name, COM_BaudRate_Value, (Parity)COM_Parity_Value, COM_DataBits_Value, (StopBits)COM_StopBits_Value);
-            serial.WriteTimeout = COM_WriteTimeout_Value;
-            serial.ReadTimeout = COM_ReadTimeout_Value;
-            serial.RtsEnable = COM_RtsEnable;
-            serial.Handshake = (Handshake)COM_Handshake_Value;
+            using SerialPort? serial = new SerialPort(ViewModel.COM_Port_Name, ViewModel.COM_BaudRate_Value, (Parity)ViewModel.COM_Parity_Value, ViewModel.COM_DataBits_Value, (StopBits)ViewModel.COM_StopBits_Value);
+            serial.WriteTimeout = ViewModel.COM_WriteTimeout_Value;
+            serial.ReadTimeout = ViewModel.COM_ReadTimeout_Value;
+            serial.RtsEnable = ViewModel.COM_RtsEnable;
+            serial.Handshake = (Handshake)ViewModel.COM_Handshake_Value;
             serial.Open();
-            serial.WriteLine("++addr " + COM_GPIB_Address_Value);
+            serial.WriteLine("++addr " + ViewModel.COM_GPIB_Address_Value);
             serial.WriteLine("++ren 1");
             serial.WriteLine("++auto 2");
             Thread.Sleep(100);
@@ -375,49 +342,49 @@ public partial class MainWindow : Window
 
     private void AR488_Version_Click(object sender, RoutedEventArgs e)
     {
-        if (COM_Config_Updater() == true)
+        //if (COM_Config_Updater() == true)
+        //{
+        (bool check, string return_data) = Serial_Query_AR488("++ver");
+        if (check == true)
         {
-            (bool check, string return_data) = Serial_Query_AR488("++ver");
-            if (check == true)
-            {
-                Insert_Log(return_data, 0);
-            }
+            Insert_Log(return_data, 0);
         }
-        else
-        {
-            Insert_Log("COM Info is invalid. Correct any errors and try again.", 1);
-        }
+        //}
+        //else
+        //{
+        //    Insert_Log("COM Info is invalid. Correct any errors and try again.", 1);
+        //}
     }
 
     private void AR488_Reset_Click(object sender, RoutedEventArgs e)
     {
-        if (COM_Config_Updater() == true)
+        //if (COM_Config_Updater() == true)
+        //{
+        if (Serial_Write("++rst") == true)
         {
-            if (Serial_Write("++rst") == true)
-            {
-                Insert_Log("Reset command was send successfully.", 0);
-            }
+            Insert_Log("Reset command was send successfully.", 0);
         }
+        //}
     }
 
     private void Verify_3457A_Click(object sender, RoutedEventArgs e)
     {
-        if (COM_Config_Updater() == true)
+        //if (COM_Config_Updater() == true)
+        //{
+        (bool check, string return_data) = Serial_Query_HP3457A("ID?");
+        if (check == true)
         {
-            (bool check, string return_data) = Serial_Query_HP3457A("ID?");
-            if (check == true)
+            Insert_Log(return_data, 0);
+            if (string.Equals(return_data.Trim(), "HP3457A") == true)
             {
-                Insert_Log(return_data, 0);
-                if (string.Equals(return_data.Trim(), "HP3457A") == true)
-                {
-                    Insert_Log("Verify Successful.", 0);
-                }
-                else
-                {
-                    Insert_Log("Verify Failed. Expected ID? query is HP3457A.", 1);
-                    Insert_Log("Try Again.", 1);
-                }
+                Insert_Log("Verify Successful.", 0);
             }
+            else
+            {
+                Insert_Log("Verify Failed. Expected ID? query is HP3457A.", 1);
+                Insert_Log("Try Again.", 1);
+            }
+            //}
         }
         else
         {
@@ -427,13 +394,13 @@ public partial class MainWindow : Window
 
     private void Reset_3457A_Click(object sender, RoutedEventArgs e)
     {
-        if (COM_Config_Updater() == true)
-        {
+        //if (COM_Config_Updater() == true)
+        //{
             if (Serial_Write("RESET") == true)
             {
                 Insert_Log("Reset command was send successfully. Please wait for few seconds.", 0);
             }
-        }
+        //}
     }
 
     private void Lock_controls()
@@ -510,84 +477,6 @@ public partial class MainWindow : Window
             {
                 return (false, 0);
             }
-        }
-    }
-
-    private void Get_Calibration_Data(object sender, RoutedEventArgs e)
-    {
-        while (Calibration_Data.TryTake(out _)) { }
-        (bool isValid_Start_Address, double Start_Address) = Text_Num(Start_Address_Input_Field.Text, false, true);
-        (bool isValid_Stop_Address, double Stop_Address) = Text_Num(Stop_Address_Input_Field.Text, false, true);
-        if (isValid_Start_Address == true & isValid_Stop_Address == true)
-        {
-            try
-            {
-                if (COM_Config_Updater() == true)
-                {
-                    Lock_controls();
-                    Task.Run(() =>
-                    {
-                        using var serial = new SerialPort(COM_Port_Name, COM_BaudRate_Value, (Parity)COM_Parity_Value, COM_DataBits_Value, (StopBits)COM_StopBits_Value);
-                        serial.WriteTimeout = COM_WriteTimeout_Value;
-                        serial.ReadTimeout = COM_ReadTimeout_Value;
-                        serial.RtsEnable = COM_RtsEnable;
-                        serial.Handshake = (Handshake)COM_Handshake_Value;
-                        serial.Open();
-                        serial.WriteLine("++addr " + COM_GPIB_Address_Value);
-                        serial.WriteLine("++ren 1");
-                        serial.WriteLine("++auto 2");
-                        Thread.Sleep(100);
-                        serial.WriteLine("RESET");
-                        Thread.Sleep(4000);
-                        serial.WriteLine("TRIG 4");
-                        Thread.Sleep(100);
-
-                        for (int i = (int)Start_Address; i <= (int)Stop_Address; i = i + 2)
-                        {
-                            serial.WriteLine("PEEK " + i);
-                            serial.WriteLine("++read");
-                            string Serial_Data = serial.ReadLine();
-                            Insert_Log("PEEK " + i + "," + "0x" + i.ToString("X4") + "," + Serial_Data, 6);
-                            Calibration_Data.Add("0x" + i.ToString("X4") + "," + Serial_Data.Trim());
-                        }
-
-                        serial.Close();
-                        Insert_Log("HP 3457A Calibration Dump Finished.", 0);
-                        Write_Calibration_Data_To_File();
-                        Unlock_controls();
-                    });
-                }
-            }
-            catch (Exception Ex)
-            {
-                while (Calibration_Data.TryTake(out _)) { }
-                Insert_Log(Ex.Message, 1);
-                Insert_Log("Failed to get Calibration Data.", 1);
-                Unlock_controls();
-            }
-        }
-        else
-        {
-            Insert_Log("Start and Stop Address values must be real positive numbers. Try Again.", 1);
-        }
-    }
-
-    private void Write_Calibration_Data_To_File()
-    {
-        int Calibration_Data_Count = Calibration_Data.Count;
-        try
-        {
-            using (TextWriter datatotxt = new StreamWriter(folder_Directory + @"\" + DateTime.Now.ToString("yyyy-MM-dd_hh-mm-ss tt") + "_Cal.txt", true))
-            {
-                for (int i = 0; i < Calibration_Data_Count; i++)
-                {
-                    datatotxt.WriteLine(Calibration_Data.Take());
-                }
-            }
-        }
-        catch (Exception)
-        {
-            Insert_Log("Cannot save Calibration Data to text file.", 1);
         }
     }
 }

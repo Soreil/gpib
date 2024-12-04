@@ -9,8 +9,10 @@
 	</PropertyGroup>
 	<PropertyGroup>
 		<ApplicationIcon>Logo.ico</ApplicationIcon>
+		<RootNamespace>ar488</RootNamespace>
 	</PropertyGroup>
 	<ItemGroup>
+		<PackageReference Include="CommunityToolkit.Mvvm" />
 		<PackageReference Include="System.IO.Ports" />
 		<PackageReference Include="System.Management" />
 	</ItemGroup>

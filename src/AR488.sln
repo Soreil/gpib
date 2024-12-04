@@ -1,9 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.31321.278
+# Visual Studio Version 17
+VisualStudioVersion = 17.12.35521.163 d17.12
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HP 3457A CAL DUMP AR488", "HP 3457A CAL DUMP AR488.csproj", "{4959B659-B403-46FB-A81C-5F79B818D31E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AR488Viewer", "AR488Viewer.csproj", "{4959B659-B403-46FB-A81C-5F79B818D31E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
